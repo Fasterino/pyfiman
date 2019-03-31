@@ -1,5 +1,6 @@
 import tkinter as tk
 import os
+import sys
 
 
 def setup_button(window, text):
@@ -12,13 +13,12 @@ def setup_button(window, text):
     """
 
     return tk.Button(window, text=text, width=8)
-#    return tk.Button(window, text=text, width=10, height=1)  # Размеры кнопки указываются в знакоместах. Наркомания.
 
 
 
 def setup_entry(window):
     """
-    Настраивает стандартную ввода для окон.
+    Настраивает строку ввода для окон.
 
     :param window: Окно, на котором должна располагаться строка ввода.
     :param text: Отображаемая по умолчанию в строка.
@@ -36,19 +36,49 @@ def setup_list_box(window):
     """
 
     return tk.Listbox(window, heigh=15, selectmode="SINGLE")
-    #return tk.Listbox(window, heigh=25, width=30, selectmode="SINGLE")
 
 
-def setup_main_window():
+def update_path_string(path_string, path):
     """
-    Настраивает основные парметры главного окна и заполняет его виджетами.
+    Обновляет строку текущего пути.
 
-    :returns: Главное окно приложения.
+    :param path_string: Строка пути
     """
 
+    path_string.delete(0, "end")
+    path_string.insert(0, path)
+
+
+def list_dir():
+    """
+    Составляет список содержимого директории. Путь берет из строки текущего пути.
+
+    :returns: Список содержимого директории.
+    """
+
+    path = path_string.get()
+
+    return os.listdir(path)
+
+
+def update_list_box(list_box):
+    """
+    Обновляет список элементов.
+
+    :param list_box: Список элементов.
+    """
+
+    path = path_string.get()
+    dir_content = os.listdir(path)
+
+    for item in dir_content:
+        list_box.insert("end", item)
+
+
+if __name__ == "__main__":
+    # Создание главного окна и размещение на нем виджетов 
     main_window = tk.Tk()
     main_window.title("pyfiman")
-    #main_window.geometry("800x600")
     main_window.resizable(False, False)
 
     # Установка строки для отображения пути
@@ -72,17 +102,34 @@ def setup_main_window():
     mkdir_button = setup_button(main_window, "Mkdir")
     delete_button = setup_button(main_window, "Del")
     exit_button = setup_button(main_window, "Exit")
-    bottom_buttons = [copy_button, move_button, rename_button, mkdir_button, delete_button, exit_button]
-    
+    bottom_buttons = [copy_button, move_button,
+                      rename_button, mkdir_button, delete_button, exit_button]
+
     count = 0
     for button in bottom_buttons:
         button.grid(row=2, column=count, sticky="nwes")
         count += 1
 
-    return main_window
+    # Определить ОС, на которой работает pyfiman
+    if os.name == "posix":
+        start_path = "/Users/spmart/Qt/"  # В качестве пути взять root
+    elif os.name == "nt":
+        start_path = "C:\\"
+    else:
+        exit(1)
 
+    # Установить стандартные пути для панелей
+    left_panel_path = start_path
+    right_panel_path = start_path
+    update_path_string(path_string, start_path)
 
-if __name__ == "__main__":
-    main_window = setup_main_window()
-    
+    # Загрузить содержимое панелей
+    update_list_box(left_panel)
+    update_list_box(right_panel)
+
     tk.mainloop()
+
+    # TODO: Прикрутить скролл к листбоксам
+    # TODO: Чекать файл/директория перед вываливанием в листбокс
+    # TODO: Обработчики событий для кнопок
+    # TODO: Изменение отображаемой директории в зависимости от активного листбокса
