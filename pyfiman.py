@@ -34,8 +34,20 @@ def setup_list_box(window):
 
     :returns: Список элементов.
     """
+    
+    frame = tk.Frame(window)
 
-    return tk.Listbox(window, heigh=15, selectmode="SINGLE")
+    list_box = tk.Listbox(frame, heigh=15, selectmode="SINGLE")
+    list_box.pack(side="left", fill="y")
+
+    scrollbar = tk.Scrollbar(frame, orient="vertical")
+    scrollbar.config(command=list_box.yview)
+    scrollbar.pack(side="right", fill="y")
+    
+
+    #+ упаковать скролл и рамку
+    # упаковать возвращенную рамку в main
+    return frame
 
 
 def update_path_string(path_string, path):
@@ -47,18 +59,6 @@ def update_path_string(path_string, path):
 
     path_string.delete(0, "end")
     path_string.insert(0, path)
-
-
-def list_dir():
-    """
-    Составляет список содержимого директории. Путь берет из строки текущего пути.
-
-    :returns: Список содержимого директории.
-    """
-
-    path = path_string.get()
-
-    return os.listdir(path)
 
 
 def update_list_box(list_box):
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     # Определить ОС, на которой работает pyfiman
     if os.name == "posix":
-        start_path = "/Users/spmart/Qt/"  # В качестве пути взять root
+        start_path = "/"  # В качестве пути взять root
     elif os.name == "nt":
         start_path = "C:\\"
     else:
@@ -129,7 +129,8 @@ if __name__ == "__main__":
 
     tk.mainloop()
 
-    # TODO: Прикрутить скролл к листбоксам
+    # TODO:+/- Прикрутить скролл к листбоксам
     # TODO: Чекать файл/директория перед вываливанием в листбокс
     # TODO: Обработчики событий для кнопок
     # TODO: Изменение отображаемой директории в зависимости от активного листбокса
+    # TODO: Переписать формирование формы. Нет смысла пилить для этого пачку функций
