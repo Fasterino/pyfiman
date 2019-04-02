@@ -40,8 +40,11 @@ def left_panel_clicked(event):
         event {Event} -- Событие клика левой кнопкой мыши
     """
 
-    last_active_panel = "l" # Запоминаем последнюю использованную панель
-    update_path_field(path_field, left_panel_path)
+    global last_active_panel, path_field,  left_panel_path
+
+    if last_active_panel == "r":  # Проверка нужна, чтобы не затирать путь лишний раз
+        last_active_panel = "l" # Запоминаем последнюю использованную панель
+        update_path_field(path_field, left_panel_path)
 
 
 def right_panel_clicked(event):
@@ -51,8 +54,41 @@ def right_panel_clicked(event):
         event {Event} -- Событие клика левой кнопкой мыши
     """
 
-    last_active_panel = "r"  # Возможно, это можно сделать средствами Tk, но нет
+    global last_active_panel, path_field, right_panel_path
+
+    if last_active_panel == "l":  # Проверка нужна, чтобы не затирать путь лишний раз
+        last_active_panel = "r"  # Возможно, это можно сделать средствами Tk, но нет
+        update_path_field(path_field, right_panel_path)
+
+
+def left_panel_doubleclicked(event):
+    """Обрабатывает двойной клик в левой панели
+    
+    Arguments:
+        event {Event} -- Событие двойного клика левой кнопкой мыши
+    """
+    global path_field, right_panel, left_panel_path
+
+    current_path = path_field.get()
+    new_path = left_panel.get(left_panel.curselection())
+    left_panel_path = current_path + new_path
+    update_path_field(path_field, left_panel_path)
+    update_list_box(left_panel)
+
+
+def right_panel_doubleclicked(event):
+    """Обрабатывает двойной клик в правой панели
+    
+    Arguments:
+        event {Event} -- Событие двойного клика левой кнопкой мыши
+    """
+    global path_field, right_panel, right_panel_path
+
+    current_path = path_field.get()
+    new_path = right_panel.get(right_panel.curselection())
+    right_panel_path = current_path + new_path
     update_path_field(path_field, right_panel_path)
+    update_list_box(right_panel)
 
 
 def go_button_clicked(event):
@@ -62,6 +98,8 @@ def go_button_clicked(event):
         event {Event} -- Событие нажатия на кнопку
     """
 
+    global left_panel_path, right_panel_path
+
     path = path_field.get()
 
     if last_active_panel == "l":
@@ -70,8 +108,6 @@ def go_button_clicked(event):
     elif last_active_panel == "r":
         right_panel_path = path
         update_list_box(right_panel)
-    else:
-        exit(2)  # Перестраховываемся, пусть просто вываливается
 
 
 
@@ -130,7 +166,9 @@ if __name__ == "__main__":
     # Привязать обработчики клика по панелям
     last_active_panel = "l"
     left_panel.bind("<Button-1>", left_panel_clicked)
+    left_panel.bind("<Double-Button-1>", left_panel_doubleclicked)
     right_panel.bind("<Button-1>", right_panel_clicked)
+    right_panel.bind("<Double-Button-1>", right_panel_doubleclicked)
 
     # Загрузить содержимое панелей
     update_list_box(left_panel)
