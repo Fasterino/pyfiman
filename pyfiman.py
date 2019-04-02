@@ -26,7 +26,53 @@ def update_list_box(list_box):
     dir_content = os.listdir(path)
 
     for item in dir_content:
-        list_box.insert("end", item)
+        # Проверить, файл это или директория
+        if os.path.isdir(path + item):  # Если директория
+            list_box.insert("end", item + "/")  # В конец добавить /
+        elif os.path.isfile(path + item):  # Перестраховывамся. Если попадает какое-то дерьмо, не добавляем
+            list_box.insert("end", item)
+
+
+def left_panel_clicked(event):
+    """Обрабатывает клик левой кнопкой мыши по левой панели
+    
+    Arguments:
+        event {Event} -- Событие клика левой кнопкой мыши
+    """
+
+    last_active_panel = "l" # Запоминаем последнюю использованную панель
+    update_path_field(path_field, left_panel_path)
+
+
+def right_panel_clicked(event):
+    """Обрабатывает клик левой кнопкой мыши по правой панели
+    
+    Arguments:
+        event {Event} -- Событие клика левой кнопкой мыши
+    """
+
+    last_active_panel = "r"  # Возможно, это можно сделать средствами Tk, но нет
+    update_path_field(path_field, right_panel_path)
+
+
+def go_button_clicked(event):
+    """Обрабатывает нажатие на кнопку GO
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку
+    """
+
+    path = path_field.get()
+
+    if last_active_panel == "l":
+        left_panel_path = path
+        update_list_box(left_panel)
+    elif last_active_panel == "r":
+        right_panel_path = path
+        update_list_box(right_panel)
+    else:
+        exit(2)  # Перестраховываемся, пусть просто вываливается
+
 
 
 if __name__ == "__main__":
@@ -37,22 +83,22 @@ if __name__ == "__main__":
 
     # Установка строки для отображения пути
     path_field = Entry(main_window)
-    path_field.grid(row=0, column=0, columnspan=10, sticky="nwes")
+    path_field.grid(row=0, column=0, columnspan=5, sticky="nwes")
 
     # Установка кнопки GO справа от поля со строкой пути
     go_button = Button(main_window, text="GO")
-    go_button.grid(row=0, column=10, columnspan=2, sticky="nwes")
+    go_button.grid(row=0, column=5, sticky="nwes")
+    # Привязать обработчик нажатия кнопки
+    go_button.bind("<Button-1>", go_button_clicked)
 
     # Установка правой и левой панелей
     left_panel = Listbox(main_window, heigh=15, selectmode="single")
-    left_panel.grid(row=1, column=0, columnspan=5, sticky="nwes")
-    left_scroll = Scrollbar(command=left_panel.yview)
-    left_scroll.grid(row=1, column=5, sticky="nwes")
+    left_panel.grid(row=1, column=0, columnspan=3, sticky="nwes")
+    left_scroll = Scrollbar(command=left_panel.yview)  # Сделать скролл, но не добавить в окно. Гениально.
 
     right_panel = Listbox(main_window, heigh=15, selectmode="single")
-    right_panel.grid(row=1, column=6, columnspan=5, sticky="nwes")
-    right_scroll = Scrollbar(command=right_panel.yview)
-    right_scroll.grid(row=1, column=11, sticky="nwes")
+    right_panel.grid(row=1, column=3, columnspan=3, sticky="nwes")
+    right_scroll = Scrollbar(command=right_panel.yview)  # И он все равно работает. Виджет есть, но не отображается.
 
     # Установка нижних кнопок
     copy_button = Button(main_window, text="Copy", width=8)
@@ -65,8 +111,8 @@ if __name__ == "__main__":
                       rename_button, mkdir_button, delete_button, exit_button]
     count = 0
     for button in bottom_buttons:
-        button.grid(row=2, column=count, columnspan=2, sticky="nwes")
-        count += 2
+        button.grid(row=2, column=count, sticky="nwes")
+        count += 1
 
     # Определить ОС, на которой работает pyfiman
     if os.name == "posix":
@@ -81,6 +127,11 @@ if __name__ == "__main__":
     right_panel_path = start_path
     update_path_field(path_field, start_path)
 
+    # Привязать обработчики клика по панелям
+    last_active_panel = "l"
+    left_panel.bind("<Button-1>", left_panel_clicked)
+    right_panel.bind("<Button-1>", right_panel_clicked)
+
     # Загрузить содержимое панелей
     update_list_box(left_panel)
     update_list_box(right_panel)
@@ -88,8 +139,8 @@ if __name__ == "__main__":
     mainloop()
 
     # TODO:+Прикрутить скролл к листбоксам
-    # TODO: Сделать скролл невидимым (не упаковывать в окно?)
-    # TODO: Чекать файл/директория перед вываливанием в листбокс
+    # TODO:+Сделать скролл невидимым (не упаковывать в окно?)
+    # TODO:+Чекать файл/директория перед вываливанием в листбокс
     # TODO: Обработчики событий для кнопок
     # TODO: Изменение отображаемой директории в зависимости от активного листбокса
     # TODO:+Переписать формирование формы. Нет смысла пилить для этого пачку функций
