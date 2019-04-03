@@ -110,6 +110,11 @@ def go_button_clicked(event):
         update_list_box(right_panel)
 
 
+def back_button_clicked(event):
+    path = path_field.get()
+    
+
+
 
 if __name__ == "__main__":
     # Создание главного окна и размещение на нем виджетов
@@ -119,7 +124,12 @@ if __name__ == "__main__":
 
     # Установка строки для отображения пути
     path_field = Entry(main_window)
-    path_field.grid(row=0, column=0, columnspan=5, sticky="nwes")
+    path_field.grid(row=0, column=1, columnspan=4, sticky="nwes")
+
+    # Установка кнопки перехода на директорию выше
+    back_button = Button(main_window, text="BACK")
+    back_button.grid(row=0, column=0, sticky="nwes")
+    back_button.bind("<Button-1>", back_button_clicked)
 
     # Установка кнопки GO справа от поля со строкой пути
     go_button = Button(main_window, text="GO")
