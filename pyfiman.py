@@ -71,9 +71,10 @@ def left_panel_doubleclicked(event):
 
     current_path = path_field.get()
     new_path = left_panel.get(left_panel.curselection())
-    left_panel_path = current_path + new_path
-    update_path_field(path_field, left_panel_path)
-    update_list_box(left_panel)
+    if os.path.isdir(current_path + new_path):
+        left_panel_path = current_path + new_path
+        update_path_field(path_field, left_panel_path)
+        update_list_box(left_panel)
 
 
 def right_panel_doubleclicked(event):
@@ -86,9 +87,10 @@ def right_panel_doubleclicked(event):
 
     current_path = path_field.get()
     new_path = right_panel.get(right_panel.curselection())
-    right_panel_path = current_path + new_path
-    update_path_field(path_field, right_panel_path)
-    update_list_box(right_panel)
+    if os.path.isdir(current_path + new_path):
+        right_panel_path = current_path + new_path
+        update_path_field(path_field, right_panel_path)
+        update_list_box(right_panel)
 
 
 def go_button_clicked(event):
@@ -102,6 +104,13 @@ def go_button_clicked(event):
 
     path = path_field.get()
 
+    if os.path.isdir(path) == False:  # Если в строке пути не путь к директории - ничего не делать
+        return
+
+    if path[-1] != "/":
+        path += "/"  # Если пользователь так не любит ставить палки в конце, я сделаю это за него
+        update_path_field(path_field, path)
+
     if last_active_panel == "l":
         left_panel_path = path
         update_list_box(left_panel)
@@ -111,9 +120,28 @@ def go_button_clicked(event):
 
 
 def back_button_clicked(event):
+    """Обрабатывает нажатие на кнопку BACK
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку
+    """
+
+    global left_panel_path, right_panel_path
+
     path = path_field.get()
+    splited_path = path.split("/")  # Разделить путь, чтобы убрать из него верхнюю директорию
+    new_path = "/".join(splited_path[:-2]) + "/"  # Я не умею нормально пользоваться join. Сами переписывайте.
+    update_path_field(path_field, new_path)
+    if last_active_panel == "l":
+        left_panel_path = new_path
+        update_list_box(left_panel)
+    elif last_active_panel == "r":
+        right_panel_path = new_path
+        update_list_box(right_panel)
     
 
+def copy_button_clicked():
+    pass
 
 
 if __name__ == "__main__":
@@ -160,10 +188,17 @@ if __name__ == "__main__":
         button.grid(row=2, column=count, sticky="nwes")
         count += 1
 
+    copy_button.bind("<Button-1>")
+    move_button.bind("<Button-1>")
+    rename_button.bind("<Button-1>")
+    mkdir_button.bind("<Button-1>")
+    delete_button.bind("<Button-1>")
+    exit_button.bind("<Button-1>")
+
     # Определить ОС, на которой работает pyfiman
     if os.name == "posix":
         start_path = "/"  # В качестве пути взять root
-    elif os.name == "nt":
+    elif os.name == "nt":  # Все равно упадет, просто не сразу
         start_path = "C:\\"
     else:
         exit(1)
@@ -186,9 +221,5 @@ if __name__ == "__main__":
 
     mainloop()
 
-    # TODO:+Прикрутить скролл к листбоксам
-    # TODO:+Сделать скролл невидимым (не упаковывать в окно?)
-    # TODO:+Чекать файл/директория перед вываливанием в листбокс
-    # TODO: Обработчики событий для кнопок
-    # TODO: Изменение отображаемой директории в зависимости от активного листбокса
-    # TODO:+Переписать формирование формы. Нет смысла пилить для этого пачку функций
+    # TODO:+Модальные окошки для операций с файлами
+    # TODO:+- Обработчики событий для кнопок
