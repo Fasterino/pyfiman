@@ -140,8 +140,16 @@ def back_button_clicked(event):
         update_list_box(right_panel)
     
 
-def copy_button_clicked():
-    pass
+def modal_window(title, from_path, to_path):
+    modal_window = Toplevel(main_window)
+    #modal_window.grab_set()
+    modal_window.title(title)
+    modal_window.resizable(False, False)
+    #modal_window.wait_visibility(modal_window)
+
+
+def copy_button_clicked(event):
+    modal_window("Copy", left_panel_path, right_panel_path)
 
 
 if __name__ == "__main__":
@@ -188,7 +196,7 @@ if __name__ == "__main__":
         button.grid(row=2, column=count, sticky="nwes")
         count += 1
 
-    copy_button.bind("<Button-1>")
+    copy_button.bind("<Button-1>", copy_button_clicked)
     move_button.bind("<Button-1>")
     rename_button.bind("<Button-1>")
     mkdir_button.bind("<Button-1>")
@@ -223,3 +231,4 @@ if __name__ == "__main__":
 
     # TODO:+Модальные окошки для операций с файлами
     # TODO:+- Обработчики событий для кнопок
+    # TODO: Блокировку главного окна при открытии модального (или просто вывести диалоговое)
