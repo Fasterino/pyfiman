@@ -5,11 +5,11 @@ import os
 
 
 def update_path_field(path_field, path):
-    """Поле со строкой пути для активного окна
+    """Поле со строкой пути для активного окна.
     
     Arguments:
-        path_field {Entry} -- Поле со строкой пути
-        path {str} -- Путь
+        path_field {Entry} -- Поле со строкой пути.
+        path {str} -- Путь.
     """
 
     path_field.delete(0, "end")
@@ -17,10 +17,10 @@ def update_path_field(path_field, path):
 
 
 def update_list_box(list_box):
-    """Обновляет список файлов и папок в панели
+    """Обновляет список файлов и папок в ListBox.
     
     Arguments:
-        list_box {Listbox} -- Одна из панелей
+        list_box {Listbox} -- Объект tkinter.ListBox.
     """
 
     list_box.delete(0, "end")
@@ -36,6 +36,8 @@ def update_list_box(list_box):
 
 
 def update_panels():
+    """Обновляет обе панели сразу."""
+
     global left_panel_path, right_panel_path, left_panel, right_panel
 
     left_panel.delete(0, "end")
@@ -56,10 +58,10 @@ def update_panels():
             right_panel.insert("end", right)
 
 def left_panel_clicked(event):
-    """Обрабатывает клик левой кнопкой мыши по левой панели
+    """Обрабатывает клик левой кнопкой мыши по левой панели.
     
     Arguments:
-        event {Event} -- Событие клика левой кнопкой мыши
+        event {Event} -- Событие клика левой кнопкой мыши.
     """
 
     global last_active_panel, path_field,  left_panel_path
@@ -70,10 +72,10 @@ def left_panel_clicked(event):
 
 
 def right_panel_clicked(event):
-    """Обрабатывает клик левой кнопкой мыши по правой панели
+    """Обрабатывает клик левой кнопкой мыши по правой панели.
     
     Arguments:
-        event {Event} -- Событие клика левой кнопкой мыши
+        event {Event} -- Событие клика левой кнопкой мыши.
     """
 
     global last_active_panel, path_field, right_panel_path
@@ -84,15 +86,16 @@ def right_panel_clicked(event):
 
 
 def left_panel_doubleclicked(event):
-    """Обрабатывает двойной клик в левой панели
+    """Обрабатывает двойной клик в левой панели.
     
     Arguments:
-        event {Event} -- Событие двойного клика левой кнопкой мыши
+        event {Event} -- Событие двойного клика левой кнопкой мыши.
     """
     global path_field, right_panel, left_panel_path
 
     current_path = path_field.get()
     new_path = left_panel.get(left_panel.curselection())
+
     if os.path.isdir(current_path + new_path):
         left_panel_path = current_path + new_path
         update_path_field(path_field, left_panel_path)
@@ -100,15 +103,16 @@ def left_panel_doubleclicked(event):
 
 
 def right_panel_doubleclicked(event):
-    """Обрабатывает двойной клик в правой панели
+    """Обрабатывает двойной клик в правой панели.
     
     Arguments:
-        event {Event} -- Событие двойного клика левой кнопкой мыши
+        event {Event} -- Событие двойного клика левой кнопкой мыши.
     """
     global path_field, right_panel, right_panel_path
 
     current_path = path_field.get()
     new_path = right_panel.get(right_panel.curselection())
+
     if os.path.isdir(current_path + new_path):
         right_panel_path = current_path + new_path
         update_path_field(path_field, right_panel_path)
@@ -116,10 +120,10 @@ def right_panel_doubleclicked(event):
 
 
 def go_button_clicked(event):
-    """Обрабатывает нажатие на кнопку GO
+    """Обрабатывает нажатие на кнопку GO.
     
     Arguments:
-        event {Event} -- Событие нажатия на кнопку
+        event {Event} -- Событие нажатия на кнопку.
     """
 
     global left_panel_path, right_panel_path
@@ -142,10 +146,10 @@ def go_button_clicked(event):
 
 
 def back_button_clicked(event):
-    """Обрабатывает нажатие на кнопку BACK
+    """Обрабатывает нажатие на кнопку BACK.
     
     Arguments:
-        event {Event} -- Событие нажатия на кнопку
+        event {Event} -- Событие нажатия на кнопку.
     """
 
     global left_panel_path, right_panel_path
@@ -154,6 +158,7 @@ def back_button_clicked(event):
     splited_path = path.split("/")  # Разделить путь, чтобы убрать из него верхнюю директорию
     new_path = "/".join(splited_path[:-2]) + "/"  # Я не умею нормально пользоваться join. Сами переписывайте.
     update_path_field(path_field, new_path)
+
     if last_active_panel == "l":
         left_panel_path = new_path
         update_list_box(left_panel)
@@ -163,6 +168,18 @@ def back_button_clicked(event):
 
 
 def copytree(src, dst, symlinks=False, ignore=None):
+    """Рекурсивно коприрует указанную директорию. 
+    Обертка для shutil.copytree(). У оригинала есть проблемы с копированием.
+    
+    Arguments:
+        src {str} -- Источник.
+        dst {str} -- Получатель.
+    
+    Keyword Arguments:
+        symlinks {bool} -- Копировать символические ссылки. (default: {False})
+        ignore {None} -- Игнорировать ошибки. (default: {None})
+    """
+
     for item in os.listdir(src):
         s = os.path.join(src, item)
         d = os.path.join(dst, item)
@@ -172,11 +189,17 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(s, d)
 
 
-# TODO: Обернуть копирование пустых папок
 def copy_button_clicked(event):
+    """Обрабатывает нажатие на кнопку Copy.
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку.
+    """
+
     message = ""
     item_path = ""
     target_path = ""
+
     if last_active_panel == "l":
         item = left_panel.get(left_panel.curselection())
         message = item + "\nFrom: " + left_panel_path + "\nTo: " + right_panel_path
@@ -187,18 +210,30 @@ def copy_button_clicked(event):
         message = item + "\nFrom: " + right_panel_path + "\nTo: " + left_panel_path
         item_path = right_panel_path + item
         target_path = left_panel_path + item
+
     answer = mb.askyesno(title="Copy", message=message)  # Получить ответ от диалогового окна
+
     if answer == True:
         if os.path.isfile(item_path):
             shutil.copyfile(item_path, target_path)
         elif os.path.isdir(item_path):
-            copytree(item_path, target_path)  # Обратите внимание! Используется локальный метод!
+            if not os.listdir(item_path):  # Проверить, пустая ли папка
+                os.makedirs(target_path)
+            else:
+                copytree(item_path, target_path)  # Обратите внимание! Используется локальный метод!
     update_panels()
     
 
 def delete_button_clicked(event):
+    """Обрабатывает нажатие на кнопку Del.
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку.
+    """
+
     message = ""
     item_path = ""
+
     if last_active_panel == "l":
         item = left_panel.get(left_panel.curselection())
         message = item + "\nFrom: " + left_panel_path
@@ -207,7 +242,9 @@ def delete_button_clicked(event):
         item = right_panel.get(right_panel.curselection())  # Получить выбранный элемент
         message = item + "\nFrom: " + right_panel_path
         item_path = right_panel_path + item
+
     answer = mb.askyesno(title="Delete", message=message)  # Получить ответ от диалогового окна
+
     if answer == True:
         if os.path.isfile(item_path):
             os.remove(item_path)
@@ -216,11 +253,17 @@ def delete_button_clicked(event):
     update_panels()
 
 
-# TODO: Обернуть перемещение пустых папок
 def move_button_clicked(event):
+    """Обрабатывает нажатие на кнопку Move.
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку.
+    """
+
     message = ""
     item_path = ""
     target_path = ""
+
     if last_active_panel == "l":
         item = left_panel.get(left_panel.curselection())
         message = item + "\nFrom: " + left_panel_path + "\nTo: " + right_panel_path
@@ -231,18 +274,31 @@ def move_button_clicked(event):
         message = item + "\nFrom: " + right_panel_path + "\nTo: " + left_panel_path
         item_path = right_panel_path + item
         target_path = left_panel_path + item
+
     answer = mb.askyesno(title="Move", message=message)  # Получить ответ от диалогового окна
+
     if answer == True:
         if os.path.isfile(item_path):
             shutil.copyfile(item_path, target_path)
             os.remove(item_path)
         elif os.path.isdir(item_path):
-            copytree(item_path, target_path)
-            shutil.rmtree(item_path)
+            if not os.listdir(item_path):  # Проверить, пустая ли папка
+                os.makedirs(target_path) # Если пустая, то создать такую же в месте назначения
+                #os.removedirs(item_path)  # Удаляет пустую папку, а также ее пустую мать, бабушку и дочь, если есть
+                shutil.rmtree(item_path)
+            else:
+                copytree(item_path, target_path)
+                shutil.rmtree(item_path)
     update_panels()
 
 
 def rename_button_clicked(event):
+    """Обрабатывает нажатие на кнопку Rename.
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку.
+    """
+
     message = ""
     item_path = ""
     target_path = ""
@@ -260,7 +316,9 @@ def rename_button_clicked(event):
         target_path = right_panel_path + path_field.get()
         message = item + "\nFrom: " + item_path + "\nTo: " + target_path
         update_path_field(path_field, right_panel_path)
+
     answer = mb.askyesno(title="Rename", message=message)  # Получить ответ от диалогового окна
+
     if answer == True:
         if os.path.isfile(item_path):
             os.rename(item_path, target_path)
@@ -270,6 +328,12 @@ def rename_button_clicked(event):
 
 
 def mkdir_button_clicked(event):
+    """Обрабатывает нажатие на кнопку MkDir.
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку.
+    """
+
     global path_field, left_panel_path, right_panel_path
 
     target_path = path_field.get()
@@ -282,12 +346,19 @@ def mkdir_button_clicked(event):
 
     message = "Create dir " + target_path
     answer = mb.askyesno(title="Make dir", message=message)
+
     if answer == True:
         os.makedirs(target_path)
     update_panels()
 
 
 def exit_button_clicked(event):
+    """Обрабатывает нажатие на кнопку Exit.
+    
+    Arguments:
+        event {Event} -- Событие нажатия на кнопку.
+    """
+
     answer = mb.askyesno(title="Exit", message="Are you sure?")
     if answer:
         exit(0)
@@ -327,7 +398,7 @@ if __name__ == "__main__":
     copy_button = Button(main_window, text="Copy", width=8)
     move_button = Button(main_window, text="Move", width=8)
     rename_button = Button(main_window, text="Rename", width=8)
-    mkdir_button = Button(main_window, text="Mkdir", width=8)
+    mkdir_button = Button(main_window, text="MkDir", width=8)
     delete_button = Button(main_window, text="Del", width=8)
     exit_button = Button(main_window, text="Exit", width=8)
     bottom_buttons = [copy_button, move_button,
@@ -371,3 +442,4 @@ if __name__ == "__main__":
     mainloop()
 
     # TODO: ГЛОБАЛЬНЫЙ РЕФАКТОРИНГ
+    # TODO: Определение разделителя в зависимости от ОС в при запуске pyfiman
