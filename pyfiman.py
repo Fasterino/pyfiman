@@ -5,7 +5,7 @@ import os
 
 
 def update_path_field(path_field, path):
-    """Поле со строкой пути для активного окна.
+    """Обновляет поле со строкой пути для активного окна.
     
     Arguments:
         path_field {Entry} -- Поле со строкой пути.
